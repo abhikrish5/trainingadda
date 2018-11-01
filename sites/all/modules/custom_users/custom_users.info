@@ -1,0 +1,3 @@
+core = "7.x"
+description = "Module Developed by Abhishek to handle User related functionalities"
+name = "Custom Users"

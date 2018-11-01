@@ -1,0 +1,11 @@
+name = Web API Management Module
+
+package = web_api
+core = 7.x
+
+description = API module is used to manage functions related to API.
+core = 7.x
+files[] = webapi.module
+package = WEB API
+version = "7.x-1.0"
+core = "7.x"

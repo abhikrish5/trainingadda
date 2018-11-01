@@ -1,0 +1,650 @@
+<?php
+
+function webapi_menu() {
+
+	$items = array();
+	$items['api/signup_institute'] = array(
+			'page callback' => 'signup_api_institute',
+			'access arguments' => array('access content'),
+			'type' => MENU_CALLBACK,
+	);
+	$items['api/signup_student'] = array(
+			'page callback' => 'signup_api_student',
+			'access arguments' => array('access content'),
+			'type' => MENU_CALLBACK,
+	);
+	$items['api/login_authentication'] = array(
+			'page callback' => 'login_authentication_api',
+			'access arguments' => array('access content'),
+			'type' => MENU_CALLBACK,
+	);
+
+	$items['api/get_institute_list'] = array(
+			'page callback' => 'get_institute_list',
+			'access arguments' => array('access content'),
+			'type' => MENU_CALLBACK,
+	);
+	$items['api/get_institute_courses_list'] = array(
+			'page callback' => 'get_institute_courses_list',
+			'access arguments' => array('access content'),
+			'type' => MENU_CALLBACK,
+	);
+	$items['api/get_institute_sub_courses_list'] = array(
+			'page callback' => 'get_institute_sub_courses_list',
+			'access arguments' => array('access content'),
+			'type' => MENU_CALLBACK,
+	);
+	$items['api/get_institute_sub_course_detail'] = array(
+			'page callback' => 'get_institute_sub_course_detail',
+			'access arguments' => array('access content'),
+			'type' => MENU_CALLBACK,
+	);
+	$items['api/send_institute_sub_course_query'] = array(
+			'page callback' => 'send_institute_sub_course_query',
+			'access arguments' => array('access content'),
+			'type' => MENU_CALLBACK,
+	);
+	$items['api/book_demo'] = array(
+			'page callback' => 'book_demo',
+			'access arguments' => array('access content'),
+			'type' => MENU_CALLBACK,
+	);
+	$items['api/get_institute_detail'] = array(
+			'page callback' => 'get_institute_detail',
+			'access arguments' => array('access content'),
+			'type' => MENU_CALLBACK,
+	);
+	$items['api/add_interview_question'] = array(
+			'page callback' => 'add_interview_question',
+			'access arguments' => array('access content'),
+			'type' => MENU_CALLBACK,
+	);
+	/*$items['api/chat_list'] = array(
+			'page callback' => 'chat_list_api',
+			'access arguments' => array('access content'),
+			'type' => MENU_CALLBACK,
+	);
+	$items['api/send_msg'] = array(
+			'page callback' => 'send_msg_api',
+			'access arguments' => array('access content'),
+			'type' => MENU_CALLBACK,
+	);*/
+	return $items;
+	
+	}
+//retrn roleid when uid is passed
+function ret_user_role($uid){
+	$usr_role = db_query("SELECT rid FROM `users_roles` WHERE `uid`=".$uid." ")->fetchField();
+	return $usr_role;
+}
+
+function signup_api_institute(){
+		
+		$response = array();
+		$output = array();
+	
+	$decoded = json_decode(file_get_contents('php://input'), true);
+	
+	$password = $decoded['password'];
+	$email = $decoded['email'];
+	$fullname = $decoded['fullname'];
+	$phn = $decoded['phonenumber'];
+	$int_tit=$decoded['institute_title'];
+	$address=$decoded['address'];
+	$mobile_no=$decoded['mobile_no'];
+	$gst_no=$decoded['gst_no'];
+	$adhaarid=$decoded['adhaarid'];
+	$training_mode=$decoded['training_mode'];
+	$formerly_as=$decoded['formerly_known_as'];
+	$area=$decoded['area'];
+	$lat=$decoded['lat'];
+	$long=$decoded['long'];
+
+	
+	if($email!='' && $password!='' && $fullname!='' && $phn!='' ){
+		$chk_user_mail=db_query("SELECT uid FROM `users` where mail='".$email."'")->fetchField();
+	
+		if($chk_user_mail==''){
+			//creating user
+			$new_user = array(
+			    'name' => $email,
+				'mail' => $email,
+				'pass' => $password,
+				'status' => 1,
+				'access' => REQUEST_TIME,
+				'created' => time(),
+				'roles' => array('5' => '5'), // No other roles than ins user
+					
+			);
+			
+			// The first parameter is sent blank so a new user is created.
+			$new_user = user_save(NULL, $new_user);
+			$new_uid = $new_user->uid;
+
+			$user_fields = user_load($new_uid);
+		    $user_fields->field_name['und'][0]['value']=$fullname;
+		    $user_fields->field_phone_number['und'][0]['value']=$phn;
+
+			 user_save($user_fields);
+
+			$node = new stdClass(); // We create a new node 
+			$node->type = "institute";
+			$node->uid = $new_uid;
+			$node->title=$int_tit;
+			$node->language = LANGUAGE_NONE;
+			$node = node_submit($node);
+			node_object_prepare($node); // Set some default values.
+			node_save($node);
+
+					// $nid is the function's parameter
+			$nodel = node_load($node->nid);
+			$nodel->status = 1;
+			$nodel->field_institute_address['und'][0]['value']=$address;
+			$nodel->field_institute_email_id['und'][0]['value'] =$email;
+			$nodel->field_institute_gst_number['und'][0]['value']=$gst_no;
+			$nodel->field_institute_adhar_number['und'][0]['value'] =$adhaarid;
+			$nodel->field_institute_training_mode['und'][0]['value']=$training_mode;
+			$nodel->field_inst_formerly_known_as['und'][0]['value'] =$formerly_as;
+			$nodel->field_institute_area['und'][0]['value'] =$area;
+			$nodel->field_institute_lat['und'][0]['value']=$lat;
+			$nodel->field_institute_long['und'][0]['value'] =$long;
+
+
+			$nodel->field_institute_user['und'][0]['uid'] =$new_uid;
+
+		    $nodel = node_submit($nodel);
+			node_save($nodel);
+			
+			$output['success'] = true;
+			$output['uid'] = $new_uid;
+
+			$output['data'] = 'Created Successfully';
+		}else{
+				$output['success'] = false;
+				$output['data'] = 'User Already exists with given Email ID.';	
+		}
+	}else{
+		$output['success'] = false;
+		$output['data'] = "All Mandatory Fields not recieved";
+	}
+	drupal_json_output($output);
+	drupal_exit();
+}	
+
+function signup_api_student(){
+		
+		$response = array();
+		$output = array();
+	
+	$decoded = json_decode(file_get_contents('php://input'), true);
+	
+	$password = $decoded['password'];
+	$email = $decoded['email'];
+	$fullname = $decoded['fullname'];
+	$phn = $decoded['phonenumber'];
+	
+	if($email!='' && $password!='' && $fullname!='' && $phn!='' ){
+		$chk_user_mail=db_query("SELECT uid FROM `users` where mail='".$email."'")->fetchField();
+	
+		if($chk_user_mail==''){
+			//creating user
+			$new_user = array(
+			    'name' => $email,
+				'mail' => $email,
+				'pass' => $password,
+				'status' => 1,
+				'access' => REQUEST_TIME,
+				'created' => time(),
+				'roles' => array('6' => '6'), // No other roles than student
+					
+			);
+			
+			// The first parameter is sent blank so a new user is created.
+			$new_user = user_save(NULL, $new_user);
+			$new_uid = $new_user->uid;
+
+			$user_fields = user_load($new_uid);
+		    $user_fields->field_name['und'][0]['value']=$fullname;
+		    $user_fields->field_phone_number['und'][0]['value']=$phn;
+
+		    user_save($user_fields);
+		
+			
+			$output['success'] = true;
+			$output['uid'] = $new_uid;
+			
+			$output['data'] = 'User Created Successfully';
+		}else{
+				$output['success'] = false;
+				$output['data'] = 'User Already exists with given Email ID.';	
+		}
+	}else{
+		$output['success'] = false;
+		$output['data'] = "All Mandatory Fields not recieved";
+	}
+	drupal_json_output($output);
+	drupal_exit();
+}
+	//function Login
+	
+	function login_authentication_api(){
+	
+		global $base_path,$user;
+	
+		$response = array();
+		$output = array();
+		
+	    $decoded = json_decode(file_get_contents('php://input'), true);
+		$email = $decoded['email'];
+		$password = $decoded['password'];
+	
+	
+		if($uid = user_authenticate($email,$password))
+		{
+			$user_fields = user_load($uid);
+		    $fullname = $user_fields->field_name['und'][0]['value'];
+		    $phn = $user_fields->field_phone_number['und'][0]['value'];
+			$rid = ret_user_role($uid);
+				$output['success'] = true;
+				$output['data'] = 'Login Successful.';
+				$output['uid'] = $uid;
+				$output['rid'] = $rid;
+				$output['email'] = $user_fields->mail;
+				$output['fullname'] = $fullname;
+				$output['mobile_no'] = $phn;
+		}
+		else
+		{
+			$output['success'] = false;
+			$output['data'] = 'User Credentials are Incorrect.';
+		}
+	
+		drupal_json_output($output);
+		drupal_exit();
+	}
+	
+	function get_institute_list(){
+	
+		global $base_path,$base_url;
+	
+		$response = array();
+		$output = array();
+
+		$decoded = json_decode(file_get_contents('php://input'), true);
+	
+		$page_no = $decoded['page_no'];
+
+		$item_per_page  =10;
+ 	
+	 	if(isset($page_no)){ //echo $_POST["page"] ; exit;
+	 		$current_page = filter_var($page_no, FILTER_SANITIZE_NUMBER_INT, FILTER_FLAG_STRIP_HIGH); //filter number
+	 
+	 		if(!is_numeric($current_page)){die('Invalid page number!');} //incase of invalid page number
+	 	}else{//echo "else" ; exit;
+	 		$current_page = 1; //if there's no page number, set it to 1
+	 	}
+		
+		$page_position_ap = (($current_page-1) * $item_per_page);
+ 		$limit=" LIMIT $page_position_ap, $item_per_page";
+		
+	
+
+				$allinst = db_query("SELECT * FROM `node` WHERE `type`='institute' and `status`=1 $limit")->fetchAll();
+			
+				foreach($allinst as $inst){
+					$banner_urls = array();
+					$path = '';
+					
+					$allinst_banner = db_query("SELECT b.uri FROM `field_data_field_banner` a,`file_managed` b WHERE a.`entity_id`=$inst->nid and a.`field_banner_fid`=b.fid")->fetchAll();
+
+					foreach($allinst_banner as $df){
+							//$file = file_load($df->fid);
+							$uri = $df->uri;
+							if ($wrapper = file_stream_wrapper_get_instance_by_uri($uri)) {
+							  $path = $wrapper->realpath();
+							}
+							$banner_urls[] = $path;
+					}
+
+					$inst_load = node_load($inst->nid);
+					$ins_banner_fid = $inst_load->field_institute_logo['und'][0]['fid'];
+						$file = file_load($ins_banner_fid);
+							$uri = $file->uri;
+							if ($wrapper = file_stream_wrapper_get_instance_by_uri($uri)) {
+							  $path = $wrapper->realpath();
+							}
+					
+					$res_array['id'] = $inst->nid;
+					$res_array['title'] = $inst->title;
+					$res_array['logo'] = $path;
+					$res_array['banner'] = $banner_urls;
+					$res[] = $res_array;
+					//var_dump($banner_urls);
+				}
+				
+					$output['data'] = $res;
+					$output['page_no'] = $current_page;
+
+	
+	
+		drupal_json_output($output);
+		drupal_exit();
+	}
+
+	function get_institute_courses_list(){
+	
+		global $base_path,$user;
+	
+		$response = array();
+		$output = array();
+		
+		$decoded = json_decode(file_get_contents('php://input'), true);
+		$institute_id = $decoded['institute_id'];	
+
+			if($institute_id!=""){
+				$allinstcourse = db_query("SELECT b.nid,b.title FROM `field_data_field_course_institute` a,`node` b WHERE a.`field_course_institute_nid` = $institute_id and a.`entity_id`=b.`nid`   ")->fetchAll();
+			
+				foreach($allinstcourse as $inst){
+				
+	
+					$res_array['course_id'] = $inst->nid;
+					$res_array['title'] = $inst->title;
+					
+					$res[] = $res_array;
+				}
+					
+					$output['success'] = true;
+				$output['data'] = $res;
+
+
+			}else{
+				$output['success'] = false;
+				$output['data'] = "All Mandatory Fields not recieved";
+			}
+
+				
+		
+	
+	
+		drupal_json_output($output);
+		drupal_exit();
+	}
+	
+function get_institute_sub_courses_list(){
+	
+		global $base_path,$user;
+	
+		$response = array();
+		$output = array();
+		
+		$decoded = json_decode(file_get_contents('php://input'), true);
+		$institute_id = $decoded['institute_id'];
+		$course_id = $decoded['course_id'];
+		if($institute_id!="" && $course_id!=""){
+			$allinstcourse = db_query("SELECT c.nid,c.title FROM `field_data_field_category` a,`field_data_field_sub_course_institute` b,`node` c WHERE a.`entity_id`=b.`entity_id` and a.`entity_id`=c.`nid` and a.`field_category_nid` =$course_id and b.`field_sub_course_institute_nid`=$institute_id")->fetchAll();
+			
+				foreach($allinstcourse as $inst){
+				
+	
+					$res_array['course_id'] = $inst->nid;
+					$res_array['title'] = $inst->title;
+					
+					$res[] = $res_array;
+				}
+				
+					
+				$output['success'] = true;
+				$output['data'] = $res;
+
+		}else{
+				$output['success'] = false;
+				$output['data'] = "All Mandatory Fields not recieved";
+			}
+				
+		
+	
+	
+		drupal_json_output($output);
+		drupal_exit();
+	}
+
+	
+	function get_institute_sub_course_detail(){
+	
+		global $base_path,$user;
+	
+		$response = array();
+		$output = array();
+		
+		$decoded = json_decode(file_get_contents('php://input'), true);
+		//$institute_id = $decoded['institute_id'];
+		//$course_id = $decoded['course_id'];
+		$sub_course_id = $decoded['sub_course_id'];
+		
+		$sub_cat_load = node_load($sub_course_id);	
+				
+	//print_r($sub_cat_load);exit;
+					$res_array['sub_course_id'] = $sub_cat_load->nid;
+					$res_array['title'] = $sub_cat_load->title;
+					$res_array['body'] = $sub_cat_load->body['und'][0]['value'];
+					
+					$output = $res_array;
+		
+	
+	
+		drupal_json_output($output);
+		drupal_exit();
+	}
+
+	function send_institute_sub_course_query(){
+	
+		global $base_path,$user;
+	
+		$response = array();
+		$output = array();
+		
+		$decoded = json_decode(file_get_contents('php://input'), true);
+		$sub_course_id = $decoded['sub_course_id'];
+		$uid = $decoded['uid'];//student_id
+
+		$student_load = user_load($uid);
+
+		$sub_cat_load = node_load($sub_course_id);	
+		$ins_id = $sub_cat_load->field_sub_course_institute['und'][0]['nid'];
+
+		$ins_load = node_load($ins_id);
+		$ins_email = $ins_load->field_institute_email_id['und'][0]['value'];
+		
+		//send mail to institute
+		$to = $ins_email;
+		$mil_sub = 'Enquiry Request Recieved';
+		$mail_body = 'Hi,<br>We have recieved the following enquiry request';	
+		$mail_success1 = send_mail($to,$mail_sub,$mail_body);
+	
+		//send mail to student	
+		$to = $student_load->mail;
+		$mil_sub = 'Enquiry Request Recieved';
+		$mail_body = 'Dear User,<br>Your Request has been recieved and is forwarded to respective Institute. You will be contacted by Institute soon for further Details';	
+		$mail_success2 = send_mail($to,$mail_sub,$mail_body);
+	
+		drupal_json_output($output);
+		drupal_exit();
+	}
+	
+	function send_mail($to,$mail_sub,$mail_body){
+	
+		$from = variable_get('global_email');
+		$my_module = 'webapi';
+		$my_mail_token = 'Register Verified';
+				
+		//$email_body = ret_email_body($mail_body);
+		$message_arr = array(
+				'id' => $my_module . '_' . $my_mail_token,
+				'to' => $to,
+
+				'subject' => $mail_sub,
+				'body' => $mail_body,
+				'headers' => array(
+						'From' => $from,
+						'Cc' => $from,
+						'Sender' => $from,
+						'Return-Path' => $from,
+						'MIME-Version' => '1.0',
+						'Content-Type' => 'text/html; charset=UTF-8; format=flowed; delsp=yes',
+						'Content-Transfer-Encoding' => '8Bit',
+						'X-Mailer' => 'Drupal',
+				),
+		);
+		
+			
+		$system = drupal_mail_system($my_module, $my_mail_token);
+		$result = $system->mail($message_arr);
+		echo $result;
+	}
+
+	function book_demo(){
+
+		global $base_path,$user,$base_url;
+	
+		$response = array();
+		$output = array();
+		
+		$decoded = json_decode(file_get_contents('php://input'), true);
+
+		$name = $decoded['fullname'];
+		$mobile = $decoded['mobile_no'];
+		$email = $decoded['email'];
+		$inst_id = $decoded['institute_id'];
+		$course = $decoded['course_id'];
+		$sub_course_id = $decoded['sub_course_id'];
+
+		
+		$query = $decoded['query'];
+		$user_id = $decoded['user_id'];//student_id
+
+
+		if($name!='' && $mobile!='' && $email!='' && $inst_id!='' ){
+
+			$node = new stdClass(); // We create a new node 
+			$node->type = "demo_request";
+			$node->uid = $user_id;
+			$node->title="demo-request";
+			$node->language = LANGUAGE_NONE;
+			$node = node_submit($node);
+			node_object_prepare($node); // Set some default values.
+			node_save($node);
+
+					// $nid is the function's parameter
+			$nodel = node_load($node->nid);
+			$nodel->status = 1;
+			$nodel->field_demo_request_name['und'][0]['value']=$name;
+			$nodel->field_demo_request_email['und'][0]['value'] =$email;
+			$nodel->field_demo_request_mobile_number['und'][0]['value']=$mobile;
+			$nodel->field_demo_request_institute['und'][0]['nid'] =$inst_id;
+			$nodel->field_demo_request_course['und'][0]['nid']=$course;
+			$nodel->field_demo_request_sub_course['und'][0]['nid'] =$sub_course_id;
+			$nodel->field_demo_request_query['und'][0]['value'] = $query;
+
+		    $nodel = node_submit($nodel);
+			node_save($nodel);
+			$to = "harshatechie20@gmail.com,abhikrish5@gmail.com";
+			$mail_sub = "New Demo Request";
+			$mail_body = "Hi Admin,<br><br>New Demo request has been raised.<br>Please login to ".$base_url." for more details.";
+			send_mail($to,$mail_sub,$mail_body);
+			$output['success'] = true;
+		}else{
+			$output['success'] = false;
+			$output['data'] = "All Mandatory Fields not recieved";
+		}
+		drupal_json_output($output);
+		drupal_exit();
+
+	}
+
+function get_institute_detail(){
+	global $base_path,$user;
+	
+		$response = array();
+		$output = array();
+		
+		$decoded = json_decode(file_get_contents('php://input'), true);
+
+		$inst_id = $decoded['institute_id'];
+
+	if($inst_id!=''){
+
+
+		$inst_load = node_load($inst_id);	
+				
+		$res_array['institute_title'] = $inst_load->title;
+		
+		$res_array['address'] = $inst_load->field_institute_address['und'][0]['value'];
+		$res_array['ins_email'] = $inst_load->field_institute_email_id['und'][0]['value'] ;
+		$res_array['gst_no'] = $inst_load->field_institute_gst_number['und'][0]['value'];
+		$res_array['adhaarid'] = $inst_load->field_institute_adhar_number['und'][0]['value'];
+		$res_array['training_mode'] = $inst_load->field_institute_training_mode['und'][0]['value'];
+		$res_array['formerly_known_as'] = $inst_load->field_inst_formerly_known_as['und'][0]['value'];
+		$res_array['area'] = $inst_load->field_institute_area['und'][0]['value'];
+		$res_array['lat'] = $inst_load->field_institute_lat['und'][0]['value'];
+		$res_array['long'] = $inst_load->field_institute_long['und'][0]['value'];
+		$output = $res_array;
+
+
+	}else{
+		$output['success'] = false;
+		$output['data'] = "All Mandatory Fields not recieved";
+	}
+	drupal_json_output($output);
+	drupal_exit();
+
+}
+
+function add_interview_question(){
+
+		global $base_path,$user;
+	
+		$response = array();
+		$output = array();
+		
+		$decoded = json_decode(file_get_contents('php://input'), true);
+
+		$ques = $decoded['question'];
+		$ans = $decoded['ans'];
+		$institute_id = $decoded['institute_id'];
+		$course_cat_id = $decoded['course_cat_id'];
+		$course_sub_cat_id = $decoded['course_sub_cat_id'];
+		$user_id = $decoded['user_id'];
+
+
+		if($ques!='' && $ans!='' && $institute_id!='' && $course_cat_id!='' && $course_sub_cat_id!='' && $user_id!=''){
+
+			$node = new stdClass(); // We create a new node 
+			$node->type = "interview_questions";
+			$node->uid = $user_id;
+			$node->title=$ques;
+			$node->language = LANGUAGE_NONE;
+			$node = node_submit($node);
+			node_object_prepare($node); // Set some default values.
+			node_save($node);
+
+			// $nid is the function's parameter
+			$nodel = node_load($node->nid);
+			$nodel->status = 1;
+			$nodel->body['und'][0]['value']=$ans;
+			$nodel->field_institute_ques_ref['und'][0]['value'] =$institute_id;
+			$nodel->field_course_category_ques_ref['und'][0]['value']=$course_cat_id;
+			$nodel->field_course_sub_cat_ques_ref['und'][0]['value'] =$course_sub_cat_id;
+			
+
+		    $nodel = node_submit($nodel);
+			node_save($nodel);
+			
+			$output['success'] = true;
+		}else{
+			$output['success'] = false;
+			$output['data'] = "All Mandatory Fields not recieved";
+		}
+		drupal_json_output($output);
+		drupal_exit();
+
+	}

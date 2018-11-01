@@ -1,0 +1,35 @@
+<?php
+global $user,$base_path, $base_url;
+function custom_users_menu() {
+    $items = array();
+	
+	
+	$items['show-region-wise-asm'] = array(
+			'title' => '',
+			'page callback' => 'show_sregion_wise_asm',
+			'access arguments' => array('access content'),
+			'type' => MENU_CALLBACK,
+	);
+    return $items;
+}
+
+function custom_users_theme(){
+	$themes = array (
+			
+			
+	);
+
+	return $themes;
+}
+
+function custom_users_form_alter(&$form, &$form_state, $form_id) {
+	if($form_id == 'user_login') {
+		//drupal_set_message("Inside Form");
+		$form['link'] = array('#markup' => l(t('Forgot your password?'),'user/password'));
+	}
+	if($form_id == 'user_pass') {
+		//drupal_set_message("Inside Form");
+		$form['link'] = array('#markup' => l(t('Sign In'),'user/login'));
+	}
+}
+

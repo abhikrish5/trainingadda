@@ -1,0 +1,231 @@
+h2, .h2 {
+    font-size: 20px;
+}
+.alert{
+    margin: 10px;
+    border-radius: 0px;
+}
+
+.navbar.container, .navbar.container-fluid {
+    border: none;
+    width: 100%;
+    max-width: 100%;
+    background-color: #3f3f3f0f;
+    border-bottom: none;
+    border-radius: 0px;
+    height: 70px;
+    margin-bottom: 0px;
+    margin-top: unset;
+}
+
+.container {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: unset;
+    margin-left: unset;
+    width: 100%;
+    margin-top: 0px;
+}
+
+.navbar.container>.container {
+    padding: 0;
+    width: auto;
+}
+
+#block-views-home-page-slider-block h2.block-title    
+{
+	display: none;
+}
+
+.form-search  
+{
+    width: 30%;
+    position: absolute;
+    top: 230px;
+    left: 34%;
+    z-index: 10;
+}
+.navbar-header .logo img {
+    height: 50px;
+}
+#edit-search-block-form--2{
+	border-radius: 0px;
+}
+.input-group-btn .btn {
+border-radius: unset;
+}
+.login-btn{
+    color: #000;
+}
+.login-btn-area{
+    float: right;
+    padding-top: 25px;
+}
+
+.createacnt-btn{
+    padding-left: 200px;
+    color: #000;
+}
+.list-bis-btn{
+    padding-left: 10px;
+    background: #fdb918;
+    border-radius: 2px;
+    padding: 5px 10px 5px;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: #000;
+    
+}
+.ins-list-btn {
+   padding-left: 10px;
+    background: #fdb918;
+    border-radius: 2px;
+    padding: 5px 10px 5px;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: #000;
+    
+    
+}
+a:hover{
+	text-decoration: none;
+	cursor: pointer; 
+}	
+.bussiness-ques{
+    padding-right: 20px;
+}
+#user-login {
+    width: 320px;
+    margin: auto;
+    background: #fff;
+    padding: 30px;
+    margin-top: 70px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 0px 10px #d0d0d0;
+}
+#user-register-form
+{
+    width: 500px;
+    margin: auto;
+    background: #fff;
+    padding: 30px;
+    margin-top: 70px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 0px 10px #d0d0d0;
+}
+#user-pass
+{
+    width: 500px;
+    margin: auto;
+    background: #fff;
+    padding: 30px;
+    margin-top: 70px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 0px 10px #d0d0d0;
+}
+.page-user .nav-tabs{
+    display: none;
+}
+.page-user .page-header{
+    display: none;
+}
+#user-login .btn,#user-pass .btn {
+    margin-top: 10px;
+}
+.page-user .breadcrumb{
+    display: none;
+}
+.page-header{
+    font-size: 20px;
+    padding-top: 8px;
+}
+.footer {
+    margin-top: 10px;
+    padding: 10px;
+    border: none;
+    width: 100%;
+    background: rgba(53, 65, 155, 0.87);
+    text-align: -webkit-center;
+    color: white;
+}
+.inst-view-home{
+    width: 150px;
+}
+.inst-view-home .views-field-field-institute-logo{
+	height: 100px;
+    padding: 20px;
+}
+
+.inst-view-home .views-field-title{
+    padding: 5px;
+}
+thead .views-table {
+    background-color: #a6a7a7;
+}
+.navbar-nav{
+    margin-top: 4px;
+}
+.book-demo-btn{
+    margin-right: 20px;
+    padding-right: 100px;
+    /* padding-left: 10px; */
+    background: #e16666;
+    border-radius: 2px;
+    padding: 5px 10px 5px;
+    font-size: 14px;
+    color: #efecec;
+}
+.node-demo_request-form{
+	width: 500px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    float: center;
+}
+
+.view-most-popular-training-courses,.view-institute-list{
+    text-align: -webkit-center;
+}
+
+.block-title{
+    text-align: center;
+}
+.views-field-field-master-course-logo{
+    padding: 10px;
+    border: 2px solid #dfdfdf;
+    border-radius: 6px;
+    margin: 5px;
+}
+.ins-page-logo{
+    height: 200px;
+    width: 200px;
+    background-color: #ced3d3;
+}
+.institute-page{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+.inst-map{
+    padding-right: unset;
+    padding-left: unset;
+}
+.ins-notification{
+    background-color: #6ebbd7;
+    color: white;
+}
+.institute-page .nav-tabs > li.active{
+    
+    border-bottom: 2px solid #ddd !important;
+    border-bottom-color: #228ab7;
+}
+.inst-page-tabs{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    }
+li.active a {
+    border: 0 !important;
+    border-bottom: 2px solid #518fff !important;
+}
